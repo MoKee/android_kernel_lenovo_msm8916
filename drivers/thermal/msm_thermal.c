@@ -2191,6 +2191,10 @@ static int __ref update_offline_cores(int val)
 	if (!core_control_enabled)
 		return 0;
 
+	/* Don't offline first two cores */
+	if (cpu_online(0) || cpu_online(1))
+		return 0;
+
 	previous_cpus_offlined = cpus_offlined;
 	cpus_offlined = msm_thermal_info.core_control_mask & val;
 
