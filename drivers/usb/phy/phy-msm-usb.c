@@ -125,6 +125,14 @@ static struct power_supply *psy;
 
 static bool aca_id_turned_on;
 static bool legacy_power_supply;
+
+//+NewFeature,mahao.wt,ADD,2015.3.16,add Fan54015 driver
+#if defined (WT_USE_FAN54015)    
+
+extern  bool IsUsbPlugIn,IsTAPlugIn,TrunOnChg,OTGturnOn;
+
+#endif
+//-NewFeature,mahao.wt,ADD,2015.3.16,add Fan54015 driver
 static inline bool aca_enabled(void)
 {
 #ifdef CONFIG_USB_MSM_ACA
@@ -1264,6 +1272,14 @@ static irqreturn_t msm_otg_phy_irq_handler(int irq, void *data)
 		pr_debug("PHY ID IRQ outside LPM\n");
 		msm_id_status_w(&motg->id_status_work.work);
 	}
+
+  //+NewFeature,mahao.wt,ADD,2015.3.16,add Fan54015 driver
+#if defined (WT_USE_FAN54015)    
+          printk(KERN_WARNING   "~OTG IRQ \n");
+         OTGturnOn = true;    
+
+#endif
+//-NewFeature,mahao.wt,ADD,2015.3.16,add Fan54015 driver
 
 	return IRQ_HANDLED;
 }
@@ -3285,6 +3301,23 @@ static void msm_otg_sm_work(struct work_struct *w)
 				msm_chg_detect_work(&motg->chg_work.work);
 				break;
 			case USB_CHG_STATE_DETECTED:
+
+                              //+NewFeature,mahao.wt,ADD,2015.3.16,add Fan54015 driver
+                                  #if defined (WT_USE_FAN54015)    
+                                       if(motg->chg_type==USB_DCP_CHARGER)
+					    { printk(KERN_WARNING   "~TA Plug In.  \n");
+					      IsTAPlugIn=true;
+				              TrunOnChg=true;		  
+                                       	    }
+				       else  if(motg->chg_type==USB_SDP_CHARGER)					   
+                                                    {  printk(KERN_WARNING   "~USB Plug In.  \n");
+                                                       IsUsbPlugIn=true;
+						       TrunOnChg=true;
+				       	            }
+
+                                 #endif
+                              //-NewFeature,mahao.wt,ADD,2015.3.16,add Fan54015 driver
+                              
 				switch (motg->chg_type) {
 				case USB_DCP_CHARGER:
 					/* fall through */

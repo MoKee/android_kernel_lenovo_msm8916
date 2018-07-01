@@ -906,7 +906,11 @@ first_try:
 
 		if (unlikely(ret < 0)) {
 			ret = -EIO;
+#if 1  //for cts testVideoSnapshot failed
+		} else if (unlikely(wait_for_completion_interruptible_timeout(done,10*HZ)<=0)) {
+#else
 		} else if (unlikely(wait_for_completion_interruptible(done))) {
+#endif
 			spin_lock_irq(&epfile->ffs->eps_lock);
 			/*
 			 * While we were acquiring lock endpoint got disabled
