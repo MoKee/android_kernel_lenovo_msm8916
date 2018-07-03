@@ -668,14 +668,7 @@ static int camera_v4l2_close(struct file *filep)
 
 		/* Donot wait, imaging server may have crashed */
 
-#if 1
-//wgz add. case:1 hardware open returned , but vendor is not completed yet
-// 2 : customer open camera 3. will deadlock.
-//this should modify with vendor sensor_process.c the same time
 		msm_post_event(&event, MSM_POST_EVT_TIMEOUT);
-#else
-		msm_post_event(&event, -1);
-#endif
 		msm_delete_command_ack_q(pvdev->vdev->num, 0);
 
 		/* This should take care of both normal close
